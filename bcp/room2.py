@@ -172,12 +172,12 @@ def initlisteners():
     if not debug:
         for channel in inputChannels:
             channelSelection[channel] = False
-            try: 
-                GPIO.add_event_detect(channel, GPIO.BOTH, callback=toggle, bouncetime=300)
-                logging.debug("channel %s listener initialized" % (channel))
-            except Exception as e:
-                listeners = True
-                pass
+            #try: 
+                #GPIO.add_event_detect(channel, GPIO.BOTH, callback=toggle, bouncetime=300)
+                #logging.debug("channel %s listener initialized" % (channel))
+            #except Exception as e:
+                #listeners = True
+                #pass
     resetPedestal(stop=True)
     return "Listeners initialized"
 
@@ -188,27 +188,15 @@ def toggle(channel):
     if channelSelection[channel]:
         # deselection
         # check that the state wasn't just noise
-        if GPIO.input(channel):
-            time.sleep(0.1)
-            if GPIO.input(channel):
-                channelSelection[channel] = False
-                url = "%s/input/%s/%s/1" % (SERVER_URL, CONTROLLER_ID, channel)
-                logging.debug("ON %s\nPosting to %s"  % (channel, url))
+        channelSelection[channel] = False
+        url = "%s/input/%s/%s/1" % (SERVER_URL, CONTROLLER_ID, channel)
+        logging.debug("ON %s\nPosting to %s"  % (channel, url))
     else:
         # selection
         # check that state wasn't just noise
-        if not GPIO.input(channel):
-            time.sleep(0.1)
-            if not GPIO.input(channel):
-                time.sleep(0.1)
-                if not GPIO.input(channel):
-                    time.sleep(0.1)
-                    if not GPIO.input(channel):
-                        time.sleep(0.1)
-                        if not GPIO.input(channel):
-                            channelSelection[channel] = True
-                            url = "%s/input/%s/%s/0" % (SERVER_URL, CONTROLLER_ID, channel)
-                            logging.debug("OFF %s\nPosting to %s"  % (channel, url))
+        channelSelection[channel] = True
+        url = "%s/input/%s/%s/0" % (SERVER_URL, CONTROLLER_ID, channel)
+        logging.debug("OFF %s\nPosting to %s"  % (channel, url))
     try:
         requests.get(url, timeout=1)
     except Exception as e:
@@ -368,10 +356,29 @@ class pedestalThread(threading.Thread):
         print "Resetting Pedestal"
         resetPedestal(stop=True)
 
+class leverThread(threading.Thread):
+    def __init__(self):
+        super(leverThread, self).__init__()
+
+    def run(self):
+        history = []
+        while True:
+            time.sleep(0.1)
+            history.push(1 if GPIO.input(inputChannels[0]) else 0)
+            if len(history) > 10:
+                history = history[len(history)-10:len(history)]
+            if history[-1]:
+                print('Input was HIGH')
+            else:
+                print('Input was LOW')
+
+
 
 if __name__ == '__main__':
-    thread = pedestalThread(pinTimers, isBlinking)
-    thread.start();
+    pThread = pedestalThread(pinTimers, isBlinking)
+    pThread.start();
+    lThread = leverThread()
+    lThread.start();
     server = pywsgi.WSGIServer(('', 4000), app, handler_class=WebSocketHandler)
     server.serve_forever()
     #app.run(debug=True, host='0.0.0.0', port=4000)
