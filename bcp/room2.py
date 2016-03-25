@@ -18,6 +18,7 @@ app = Flask(__name__)
 if not debug:
     GPIO.setmode(GPIO.BOARD)
 
+killed = False
 isBlinking = defaultdict(bool)
 pinValues = defaultdict(int)
 pinObject = {}
@@ -196,7 +197,7 @@ def toggle(channel, on=False):
         channelSelection[channel] = False
         url = "%s/input/%s/%s/1" % (SERVER_URL, CONTROLLER_ID, channel)
         logging.debug("ON %s\nPosting to %s"  % (channel, url))
-    elif not channelSelection[channel]  and on:
+    elif not channelSelection[channel] and on:
         # selection
         change = True
         channelSelection[channel] = True
@@ -248,6 +249,7 @@ def listenPedestal(timers):
              key = str(getKey()).strip().upper()
              print(key + ' pressed')
              if key == "X":
+                killed = True
                 break
              now = time.time()
              if now - lastTime > 5:
@@ -368,7 +370,7 @@ class leverThread(threading.Thread):
 
     def run(self):
         history = []
-        while True:
+        while not killed:
             time.sleep(0.1)
             history.append(1 if GPIO.input(inputChannels[0]) else 0)
             if len(history) > 5:
