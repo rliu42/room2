@@ -169,7 +169,10 @@ channelSelection = {}
 
 @app.route('/initlisteners')
 def initlisteners():
-    global firstContact
+    global firstContact, killed
+    killed = True
+    timer.sleep(0.2)
+    killed = False
     if not debug:
         for channel in inputChannels:
             channelSelection[channel] = False
