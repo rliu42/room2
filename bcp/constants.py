@@ -22,4 +22,4 @@ elementKeyMap = {"G": "AIR", "D": "WATER", "A": "FIRE", "S": "EARTH", "F": "DARK
 # Pedestal charging
 DECHARGE_RATE = 2 # seconds per charge 
 NOISE_THRESHOLD = 3
-CHARGE_THRESHOLD = 15
+CHARGE_THRESHOLD = 35
