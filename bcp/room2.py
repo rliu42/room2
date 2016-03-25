@@ -241,7 +241,7 @@ def postCharge(element):
     return
 
 def listenPedestal(timers):
-    global listeners, firstContact
+    global listeners, firstContact, killed
     if not listeners:
         print('Pesdestal listeners initialized. Press "X" to terminate')
         print_update()
@@ -373,15 +373,16 @@ class leverThread(threading.Thread):
 
     def run(self):
         history = []
+        bufferLen = 5
         print "Lever thread started"
         while not killed:
             time.sleep(0.1)
             history.append(1 if GPIO.input(inputChannels[0]) else 0)
-            if len(history) > 5:
-                history = history[len(history)-10:len(history)]
-            if history[-1]:
+            if len(history) > bufferLen:
+                history = history[len(history)-bufferLen:len(history)]
+            if history[-1] == 1:
                 # input was HIGH
-                if all(history):
+                if sum(history) == len(history):
                     toggle(inputChannels[0], on=True)
             else:
                 # input was LOW
