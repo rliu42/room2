@@ -172,6 +172,11 @@ def initlisteners():
     if not debug:
         for channel in inputChannels:
             channelSelection[channel] = False
+        try:
+            lThread = leverThread()
+            lThread.start()
+        except Exception as e:
+            pass
             #try: 
                 #GPIO.add_event_detect(channel, GPIO.BOTH, callback=toggle, bouncetime=300)
                 #logging.debug("channel %s listener initialized" % (channel))
@@ -364,7 +369,7 @@ class leverThread(threading.Thread):
         history = []
         while True:
             time.sleep(0.1)
-            history.push(1 if GPIO.input(inputChannels[0]) else 0)
+            history.append(1 if GPIO.input(inputChannels[0]) else 0)
             if len(history) > 10:
                 history = history[len(history)-10:len(history)]
             if history[-1]:
@@ -377,8 +382,6 @@ class leverThread(threading.Thread):
 if __name__ == '__main__':
     pThread = pedestalThread(pinTimers, isBlinking)
     pThread.start();
-    lThread = leverThread()
-    lThread.start();
     server = pywsgi.WSGIServer(('', 4000), app, handler_class=WebSocketHandler)
     server.serve_forever()
     #app.run(debug=True, host='0.0.0.0', port=4000)
