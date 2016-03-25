@@ -20,6 +20,7 @@ pinTimers = {}
 
 @app.route('/')
 def getPins():
+    pinValues['server'] = SERVER_URL
     return json.dumps(pinValues)
 
 # Outputs

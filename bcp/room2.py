@@ -26,7 +26,15 @@ pinTimers = {}
 
 @app.route('/')
 def getPins():
+    pinValues['server'] = SERVER_URL
     return json.dumps(pinValues)
+
+@app.route('/setip/<host>')
+def setServerIP(host):
+    global SERVER_URL
+    SERVER_URL = "http://" + host
+    print "SERVER_URL set to %s" % (SERVER_URL)
+    return SERVER_URL
 
 # Outputs
 
@@ -181,12 +189,6 @@ def initlisteners():
             lThread.start()
         except Exception as e:
             print(e)
-            #try: 
-                #GPIO.add_event_detect(channel, GPIO.BOTH, callback=toggle, bouncetime=300)
-                #logging.debug("channel %s listener initialized" % (channel))
-            #except Exception as e:
-                #listeners = True
-                #pass
     resetPedestal(stop=True)
     return "Listeners initialized"
 
@@ -383,7 +385,6 @@ class leverThread(threading.Thread):
             if sum(history) == len(history):
                     toggle(inputChannels[0], on=False)
             else:
-                # input was LOW
                 if sum(history) == 0:
                     toggle(inputChannels[0], on=True)
         print "Lever thread killed"
