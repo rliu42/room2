@@ -199,13 +199,13 @@ def toggle(channel, on=False):
         change = True
         channelSelection[channel] = False
         url = "%s/input/%s/%s/1" % (SERVER_URL, CONTROLLER_ID, channel)
-        logging.debug("ON %s\nPosting to %s"  % (channel, url))
+        logging.debug("OFF %s\nPosting to %s"  % (channel, url))
     elif not channelSelection[channel] and on:
         # selection
         change = True
         channelSelection[channel] = True
         url = "%s/input/%s/%s/0" % (SERVER_URL, CONTROLLER_ID, channel)
-        logging.debug("OFF %s\nPosting to %s"  % (channel, url))
+        logging.debug("ON %s\nPosting to %s"  % (channel, url))
     try:
         if change:
             requests.get(url, timeout=1)
@@ -373,6 +373,7 @@ class leverThread(threading.Thread):
 
     def run(self):
         history = []
+        print "Lever thread started"
         while not killed:
             time.sleep(0.1)
             history.append(1 if GPIO.input(inputChannels[0]) else 0)
@@ -386,6 +387,7 @@ class leverThread(threading.Thread):
                 # input was LOW
                 if sum(history) == 0:
                     toggle(inputChannels[0], on=False)
+        print "Lever thread killed"
 
 
 if __name__ == '__main__':
