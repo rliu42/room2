@@ -23,6 +23,13 @@ def getPins():
     pinValues['server'] = SERVER_URL
     return json.dumps(pinValues)
 
+@app.route('/setip/<host>')
+def setServerIP(host):
+    global SERVER_URL
+    SERVER_URL = "http://" + host
+    print "SERVER_URL set to %s" % (SERVER_URL)
+    return SERVER_URL
+
 # Outputs
 
 @app.route('/<io>/<pin>/<value>')
