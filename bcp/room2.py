@@ -186,24 +186,25 @@ def initlisteners():
     resetPedestal(stop=True)
     return "Listeners initialized"
 
-def toggle(channel):
+def toggle(channel, on=False):
+    change = False
     url = "%s/input/%s/%s/1" % (SERVER_URL, CONTROLLER_ID, channel)
-    time.sleep(0.1)
     logging.debug("Input for channel %s is %s\n" % (channel, GPIO.input(channel)))
-    if channelSelection[channel]:
+    if channelSelection[channel] and not on:
         # deselection
-        # check that the state wasn't just noise
+        change = True
         channelSelection[channel] = False
         url = "%s/input/%s/%s/1" % (SERVER_URL, CONTROLLER_ID, channel)
         logging.debug("ON %s\nPosting to %s"  % (channel, url))
-    else:
+    elif not channelSelection[channel]  and on:
         # selection
-        # check that state wasn't just noise
+        change = True
         channelSelection[channel] = True
         url = "%s/input/%s/%s/0" % (SERVER_URL, CONTROLLER_ID, channel)
         logging.debug("OFF %s\nPosting to %s"  % (channel, url))
     try:
-        requests.get(url, timeout=1)
+        if change:
+            requests.get(url, timeout=1)
     except Exception as e:
         logging.debug("ERROR posting to %s\n" % (url))
 
@@ -370,13 +371,16 @@ class leverThread(threading.Thread):
         while True:
             time.sleep(0.1)
             history.append(1 if GPIO.input(inputChannels[0]) else 0)
-            if len(history) > 10:
+            if len(history) > 5:
                 history = history[len(history)-10:len(history)]
             if history[-1]:
-                print('Input was HIGH')
+                # input was HIGH
+                if all(history):
+                    toggle(inputChannels[0], on=True)
             else:
-                print('Input was LOW')
-
+                # input was LOW
+                if sum(history) == 0:
+                    toggle(inputChannels[0], on=False)
 
 
 if __name__ == '__main__':
