@@ -376,8 +376,7 @@ class leverThread(threading.Thread):
         bufferLen = 5
         print "Lever thread started"
         while not killed:
-            time.sleep(0.1)
-            print str(GPIO.input(inputChannels[0]))
+            time.sleep(0.07)
             history.append(1 if GPIO.input(inputChannels[0]) else 0)
             if len(history) > bufferLen:
                 history = history[len(history)-bufferLen:len(history)]
