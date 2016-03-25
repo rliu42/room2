@@ -171,7 +171,7 @@ channelSelection = {}
 def initlisteners():
     global firstContact, killed
     killed = True
-    timer.sleep(0.2)
+    time.sleep(0.2)
     killed = False
     if not debug:
         for channel in inputChannels:
@@ -180,7 +180,7 @@ def initlisteners():
             lThread = leverThread()
             lThread.start()
         except Exception as e:
-            pass
+            print(e)
             #try: 
                 #GPIO.add_event_detect(channel, GPIO.BOTH, callback=toggle, bouncetime=300)
                 #logging.debug("channel %s listener initialized" % (channel))
