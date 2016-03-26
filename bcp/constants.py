@@ -1,5 +1,5 @@
 # Address of node.js server
-SERVER_URL = None;
+SERVER_URL = '';
 
 # PWM Frequency
 FREQUENCY = 100
