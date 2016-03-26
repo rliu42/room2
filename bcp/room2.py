@@ -274,7 +274,7 @@ def listenPedestal(timers):
                     charge = chargeCount[element]
                     print("Charging %s: %s/%s" % (element, charge, CHARGE_THRESHOLD))
                     if (charge - NOISE_THRESHOLD) >= 0 and (charge - NOISE_THRESHOLD) < CHARGE_THRESHOLD and ((charge - NOISE_THRESHOLD) % CHARGE_UNIT == 0):
-                        u = SERVER_URL + "/charge/" + str((charge - NOISE_THRESHOLD) / CHARGE_UNIT + 1)
+                        u = SERVER_URL + "/charge/" + str(min((charge - NOISE_THRESHOLD) / CHARGE_UNIT + 1, CHARGE_LEVELS))
                         print u
                         try:
                             r = requests.get(u, timeout=0.5)
