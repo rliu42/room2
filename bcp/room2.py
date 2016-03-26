@@ -273,13 +273,13 @@ def listenPedestal(timers):
                     chargeCount[element] += 1
                     charge = chargeCount[element]
                     print("Charging %s: %s/%s" % (element, charge, CHARGE_THRESHOLD))
-                    if charge == NOISE_THRESHOLD and now - lastCharge > 5:
-                        u = SERVER_URL + "/begin_charge"
+                    if (charge - NOISE_THRESHOLD) >= 0 and (charge - NOISE_THRESHOLD) < CHARGE_THRESHOLD and ((charge - NOISE_THRESHOLD) % CHARGE_UNIT == 0):
+                        u = SERVER_URL + "/charge/" + str((charge - NOISE_THRESHOLD) / CHARGE_UNIT + 1)
                         try:
                             r = requests.get(u)
                             lastCharge = now
                         except Exception as e:
-                            print(str(e))
+                            print e
                     if charge >= CHARGE_THRESHOLD:
                         print("Finished charging " + element.upper())
                         setpin("output", redLED[element], 0)

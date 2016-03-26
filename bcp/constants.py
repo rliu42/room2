@@ -20,6 +20,7 @@ elementOrder = ["AIR", "WATER", "FIRE", "EARTH", "DARKNESS"]
 elementKeyMap = {"G": "AIR", "D": "WATER", "A": "FIRE", "S": "EARTH", "F": "DARKNESS"}
 
 # Pedestal charging
-DECHARGE_RATE = 2 # seconds per charge 
-NOISE_THRESHOLD = 3
-CHARGE_THRESHOLD = 35
+CHARGE_UNIT = 6
+DECHARGE_RATE = 1 # seconds per unit
+NOISE_THRESHOLD = 2
+CHARGE_THRESHOLD = CHARGE_UNIT * 8 + NOISE_THRESHOLD
