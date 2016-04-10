@@ -283,20 +283,17 @@ def listenPedestal(timers):
                             print(str(e))
                     if charge >= CHARGE_THRESHOLD:
                         print("Finished charging " + element.upper())
-                        setpin("output", redLED[element], 0)
-                        charged[element] = True
-                        postCharge(element)
-                    elif charge > NOISE_THRESHOLD:
-                        # adjust pedestal LED gradually from red to blue
                         try: 
                             if redLED[element] in timers:
                                 timers[redLED[element]].set()
                                 del timers[redLED[element]]
-                            setpin("output", redLED[element], 1)
+                            setpin("output", redLED[element], 0)
                             setpin("output", blueLED[element], 1)
                         except Exception as e:
                             print(str(e))
-                            pass
+                        finally:
+                            charged[element] = True
+                            postCharge(element)
                 else:
                     # user is charging the incorrect element
                     if isPedestalOn():
@@ -329,18 +326,9 @@ def decharger(blinkingState):
                 charge = chargeCount[element]
                 if element == next_element and charge > 0:
                     print("Decharging %s: %s/%s" % (element, charge, CHARGE_THRESHOLD))
-                if charge > NOISE_THRESHOLD and charge < CHARGE_THRESHOLD:
-                        setpin("output", redLED[element], 1)
-                        setpin("output", blueLED[element], 1)
-                elif charge == 0:
-                    if element == next_element:
-                        if not isBlinking[redLED[element]] and isPedestalOn():
-                            blink(redLED[element], "output", 1, 400)
-                        if pinValues[blueLED[element]] != 0:
-                            setpin("output", blueLED[element], 0)
 
 def isPedestalOn():
-    return (pinValues[redLED["DARKNESS"]] + pinValues[blueLED["DARKNESS"]]) > 0
+    return (sum([pinValues[redLED[key]] for key in elementOrder]) + sum([pinValues[blueLED[key]] for key in elementOrder])) > 0
 
 def resetPedestal(stop=False):
     global firstContact
@@ -379,7 +367,7 @@ class leverThread(threading.Thread):
         bufferLen = 5
         print "Lever thread started"
         while not killed:
-            time.sleep(0.07)
+            time.sleep(0.12)
             history.append(1 if GPIO.input(inputChannels[0]) else 0)
             if len(history) > bufferLen:
                 history = history[len(history)-bufferLen:len(history)]
